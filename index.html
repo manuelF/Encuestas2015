@@ -45,6 +45,9 @@
   var addCard = function(data) {
     var texto = generateCard(data);
     var newCard = $(texto).appendTo("#container");
+    if($("#container").children().length==1) {
+      newCard.css("display","block");
+    }
     var toTheLeft = function(){  submit("N",getNext);};
     var toTheRight = function(){ submit("Y",getNext);};
     newCard.find("#No").click(toTheLeft);
