@@ -90,7 +90,7 @@ func makeGetHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFun
 	}
 }
 
-var validRespondPath = regexp.MustCompile("^/respond/([0-9]+)/([NY])$")
+var validRespondPath = regexp.MustCompile("^/respond/([0-9]+)/([0-9]+)/([NY])$")
 
 func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, bool)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -100,13 +100,14 @@ func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, bool)) 
 			return
 		}
 		fmt.Println(m)
-		q_id, _ := strconv.Atoi(m[1])
-		if !((m[2] == "Y") || (m[2] == "N")) {
+		//uuid, _ := strconv.Atoi(m[1])
+		q_id, _ := strconv.Atoi(m[2])
+		if !((m[3] == "Y") || (m[3] == "N")) {
 			http.Error(w, "Error en respuesta", 301)
 			return
 		}
 		resp := false
-		if m[2] == "Y" {
+		if m[3] == "Y" {
 			resp = true
 		}
 		fn(w, r, q_id, resp)
@@ -114,7 +115,8 @@ func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, bool)) 
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	err := templates.ExecuteTemplate(w, "index.html", nil)
+	uuid := struct{ UUID int32 }{rand.Int31()}
+	err := templates.ExecuteTemplate(w, "index.html", uuid)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -131,6 +133,7 @@ func main() {
 	http.HandleFunc("/respond/", makeRespondHandler(respondHandler))
 
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./images/"))))
+	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./css/"))))
 	http.HandleFunc("/", makeIndexHandler(indexHandler))
 	if *addr {
 		l, err := net.Listen("tcp", "127.0.0.1:0")
