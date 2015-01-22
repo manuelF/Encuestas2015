@@ -54,7 +54,6 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, q)
-
 }
 
 func respondHandler(w http.ResponseWriter, r *http.Request, id int, response bool) {
@@ -90,6 +89,7 @@ func makeGetHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFun
 	}
 }
 
+// Format of response is /respond/<user_id>/<question_number>/<Yes/No>
 var validRespondPath = regexp.MustCompile("^/respond/([0-9]+)/([0-9]+)/([NY])$")
 
 func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, bool)) http.HandlerFunc {
@@ -121,20 +121,15 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-func makeIndexHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fn(w, r)
-	}
-}
 
 func main() {
 	flag.Parse()
 	http.HandleFunc("/get/", makeGetHandler(getHandler))
 	http.HandleFunc("/respond/", makeRespondHandler(respondHandler))
-
+	http.HandleFunc("/", indexHandler)
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./images/"))))
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./css/"))))
-	http.HandleFunc("/", makeIndexHandler(indexHandler))
+
 	if *addr {
 		l, err := net.Listen("tcp", "127.0.0.1:0")
 		if err != nil {
