@@ -19,28 +19,7 @@
       Q = data["Q"];
       Q_id = data["Q_id"];
       $(".buddy").first().css("display","block");
-  }
-  };
-  var fadeoutdelay = 700;
-  var fadeindelay = 300;
-
-  var swipeRight = function(){
-    $(this).addClass('rotate-left').delay(fadeoutdelay).fadeOut(1);
-    $('.buddy').find('.status').remove();
-
-    $(this).append('<div class="status like">De acuerdo!</div>');
-    $(this).next().css("display","block");
-    $(this).next().removeClass('rotate-left rotate-right').fadeIn(fadeindelay);
-    $(this).remove();
-  };
-
-  var swipeLeft = function(){
-    $(this).addClass('rotate-right').delay(fadeoutdelay).fadeOut(1);
-    $('.buddy').find('.status').remove();
-    $(this).append('<div class="status dislike">Disiento!</div>');
-    $(this).next().css("display","block");
-    $(this).next().removeClass('rotate-left rotate-right').fadeIn(fadeindelay);
-    $(this).remove();
+    }
   };
 
   var generateCard = function(data) {
@@ -52,22 +31,25 @@
     '<img id="Si" src="images/tick.png" height="50" width="50">Si</img>' +
     '</div></div>'
     return text;
-
   }
+
   var submit = function(response,cb) {
     $.ajax( {
       url:"respond/"+uuid+"/"+Q_id+"/"+response,
       success:cb,
       cache:false});
+    $(".buddy").first().remove();
     refresh();
   }
-
 
   var addCard = function(data) {
     var texto = generateCard(data);
     var newCard = $(texto).appendTo("#container");
-    newCard.on("swiperight",swipeRight);
-    newCard.on("swipeleft",swipeLeft);
+    var toTheLeft = function(){  submit("N",getNext);};
+    var toTheRight = function(){ submit("Y",getNext);};
+    newCard.find("#No").click(toTheLeft);
+    newCard.find("#Si").click(toTheRight);
+
   };
 
   var getNext = function(data) {
@@ -80,10 +62,6 @@
     for(var i = 0; i<10; i++)
     $.ajax({url:"get/",cache:false,success:getNext,async:false});
     refresh();
-    var toTheLeft = function(){ $(".buddy").first().swipeleft(); submit("N",getNext);};
-    var toTheRight = function(){ $(".buddy").first().swiperight(); submit("Y",getNext);};
-    $("#No").click(toTheLeft);
-    $("#Si").click(toTheRight);
 
     document.onkeydown = function checkKey(e) {
       e = e || window.event;

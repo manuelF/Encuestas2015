@@ -38,7 +38,7 @@ func (r Question) String() (s string) {
 }
 
 func getRandomQuestion() Question {
-	qs := []Question{{"Hola, go", 1}, {"Chau, go", 2}}
+	qs := []Question{{"Va a A sacar mas votos que B?", 1}, {"Va a C superar el 10%?", 2}, {"Va a D superar a B y no a C?", 3}}
 	return qs[rand.Intn(len(qs))]
 }
 
