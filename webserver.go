@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/fzzy/radix/redis"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -26,6 +27,7 @@ var (
 	questionStats = []QuestionStats{}
 	qidqs         = map[int]*QuestionStats{}
 	qidq          = map[int]Question{}
+	c             = &redis.Client{}
 	formats       = []string{"%v sacara mas votos que %v?", "%v sacara mas del %v porciento de votos?",
 		"%v sacara menos del %v porciento	de los votos?", "Algun candidato sacara mas del %v porciento de los votos?",
 		"El ganador, le sacara al menos %v porciento al segundo?", "Habra al menos %v candidatos con mas del %v porciento cada uno?"}
@@ -162,8 +164,15 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, q)
 }
 
-func respondHandler(w http.ResponseWriter, r *http.Request, id int, response bool) {
+func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, response bool) {
 	// Store response in REDIS
+	// go redis push q:id:y -> uuid
+	st := "N"
+	if response {
+		st = "Y"
+	}
+
+	c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
 	if response {
 		qidqs[id].Positive++
 	} else {
@@ -190,7 +199,7 @@ func makeGetHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFun
 // Format of response is /respond/<user_id>/<question_number>/<Yes/No>
 var validRespondPath = regexp.MustCompile("^/respond/([0-9]+)/([0-9]+)/([NY])$")
 
-func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, bool)) http.HandlerFunc {
+func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, int, bool)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := validRespondPath.FindStringSubmatch(r.URL.Path)
 		if m == nil {
@@ -198,7 +207,7 @@ func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, bool)) 
 			return
 		}
 		fmt.Println(m)
-		//uuid, _ := strconv.Atoi(m[1])
+		uuid, _ := strconv.Atoi(m[1])
 		q_id, _ := strconv.Atoi(m[2])
 		if !((m[3] == "Y") || (m[3] == "N")) {
 			http.Error(w, "Error en respuesta", 301)
@@ -208,7 +217,7 @@ func makeRespondHandler(fn func(http.ResponseWriter, *http.Request, int, bool)) 
 		if m[3] == "Y" {
 			resp = true
 		}
-		fn(w, r, q_id, resp)
+		fn(w, r, uuid, q_id, resp)
 	}
 }
 
@@ -248,6 +257,12 @@ func main() {
 		s := &http.Server{}
 		s.Serve(l)
 		return
+	}
+	var err error
+	c, err = redis.Dial("tcp", "localhost:6379")
+
+	if err != nil {
+		log.Fatal(err)
 	}
 	InitializeMaps()
 	http.ListenAndServe(":8080", nil)
