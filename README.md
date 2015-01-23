@@ -20,25 +20,28 @@ Estimador de Resultados Electorales 2015
 Tipo: 1
 Argumentos: {[unCandidato] [unCandidato]}
 
-
-
-* [unCandidato] sacara [mas/menos] del X% de los votos? *
+* [unCandidato] sacara mas del X% de los votos? *
 Tipo: 2
-Argumentos: {[unCandidato] [+/-] [XX]}
+Argumentos: {[unCandidato] [XX]}
+
+* [unCandidato] sacara menos del X% de los votos? *
+Tipo: 3
+Argumentos: {[unCandidato] [XX]}
+
 
 #### Especificas
 
 * Algun candidato sacara mas del X% de los votos? *
-Tipo: 3
+Tipo: 4
 Argumentos: {[XX]}
 
 
 * El ganador, le sacara al menos X% al segundo? *
-Tipo: 4
+Tipo: 5
 Argumentos: {[XX]}
 
 * Habra al menos N candidatos con mas de X% cada uno? ==> cuidar que N\*X <= 100 *
-Tipo: 5
+Tipo: 6
 Argumentos: {[N] [XX]}
 
 
