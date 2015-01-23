@@ -44,20 +44,28 @@ def matches(scenario, question):
     target = question[3]
     return N >= len([N for x in scenario if x>=target])
 
+  print "Error: " + str(scenario) + str(question)
   assert(False)
 
-def question_id(x):
-  return (lambda l: l[1] == x[0])
 
-def question_affirmative(x):
-  return (lambda l: l[2]==1)
+def getResponsesForQuestion(question, responses):
+  def question_id(x):
+    return (lambda l: l[1] == x[0])
 
-def solve(scenarios, question, response):
+  def question_affirmative(x):
+    return (lambda l: l[2]==1)
+
   # Get all responses for this question
-  matching_questions = filter(question_id(question), response)
+  matching_questions = filter(question_id(question), responses)
   # Get all positive responses for this question
   positive = len(filter(question_affirmative, matching_questions))
   negative = len(matching_questions) - positive
+  return (positive,negative)
+
+
+def solve(scenarios, question, responses):
+  positive, negative = getResponsesForQuestion(question, responses)
+
   for s in scenarios.keys():
     if matches(s,question):
       scenarios[s]+=positive
@@ -104,8 +112,8 @@ def main():
   responses = loadResponses()
   for q in questions:
     solve(hit_scenarios,q,responses)
-  for h in hit_scenarios:
-    print  str(hit_scenarios[h]) +" - "  + str(h)
+#  for h in hit_scenarios:
+#    print  str(hit_scenarios[h]) +" - "  + str(h)
 
 
 main()
