@@ -38,6 +38,12 @@ def matches(scenario, question):
     target = question[2]
     sort = sorted(scenario)
     return sort[-1]-target >= sort[-2]
+  #Type 6: Is there at least N candidates with at least X%?
+  if question[1] == 6:
+    N = question[2]
+    target = question[3]
+    return N >= len([N for x in scenario if x>=target])
+
   assert(False)
 
 def question_id(x):

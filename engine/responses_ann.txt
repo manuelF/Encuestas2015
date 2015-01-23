@@ -7,5 +7,6 @@
 23323 2 0 # !(B<A) -> A<=B
 11111 6 1 # cand 1 > 10
 11111 7 1 # cand 1 < 20
-11111 8 1 # algun cand > 40
+11111 8 1 # any cand > 40
 11111 9 0 # !(dist 1st 2nd >= 10)
+23323 10 1 # at least 2 cands with >= 20%
