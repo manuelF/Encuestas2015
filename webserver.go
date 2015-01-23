@@ -166,13 +166,13 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 
 func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, response bool) {
 	// Store response in REDIS
-	// go redis push q:id:y -> uuid
 	st := "N"
 	if response {
 		st = "Y"
 	}
-
-	c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
+	// Add to the set : "q:<q.id>r:<response>" the userid
+	// Cardinality is what is going to be tested for models
+	go c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
 	if response {
 		qidqs[id].Positive++
 	} else {
