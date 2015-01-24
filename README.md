@@ -53,3 +53,33 @@ TODO: Computar el ratio de SI de cada pregunta, e insistir sobre aquellas que ti
 Dudoso
 Habra ballotage?
 
+### Deploy
+Requisitos;
+go 1.4.1
+redis
+python2
+
+Instrucciones
+
+Instalar go (descomprimir)
+mkdir gomodules
+Setear en .profile
+export GOROOT = $(HOME)/gp
+export GOPATH = $(HOME)/gomodules
+go get github.com/fzzy/radix/redis
+
+Instalar redis (con make) y montar el servidor andando
+en el redis.conf setear
+
+maxmemory-policy noeviction
+maxmemory 100mb
+bind 127.0.0.1
+
+
+Instalar python-redis
+sudo pip install python-redis
+
+Correr Webserver:
+./redis/redis-server (o daemonizarlo)
+go run webserver.go
+
