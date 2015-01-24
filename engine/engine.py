@@ -1,11 +1,8 @@
 #!/usr/bin/python2
 
-def loadResponses():
-  f = open("responses.txt","r")
-  lines = [l.strip() for l in f.readlines()]
-  f.close()
-  return [ map(int, l.split()) for l in lines if l is not ""]
+import redis
 
+r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def loadQuestions():
   f = open("questions.txt","r")
@@ -19,20 +16,20 @@ def matches(scenario, question):
     candA = question[2]
     candB = question[3]
     return scenario[candA-1] < scenario[candB-1]
-  #Type 2: A > X%?
+  #Type 2: A >= X%?
   if question[1] == 2:
     candA = question[2]
     target = question[3]
-    return scenario[candA-1] > target
+    return scenario[candA-1] >= target
   #Type 3: A < X% ?
   if question[1] == 3:
     candA = question[2]
     target = question[3]
     return scenario[candA-1] < target
-  #Type 4: Is there a cand > X% ?
+  #Type 4: Is there a cand >= X% ?
   if question[1] == 4:
     target = question[2]
-    return any(map((lambda x: x>target), scenario))
+    return any(map((lambda x: x>=target), scenario))
   #Type 5: Is the distance between 1st and 2nd at least X% ?
   if question[1] == 5:
     target = question[2]
@@ -47,24 +44,28 @@ def matches(scenario, question):
   print "Error: " + str(scenario) + str(question)
   assert(False)
 
+memo={}
+def get(q_id, response):
+  key = (q_id,response)
+  if key not in memo:
+    res = r.scard("q:"+str(q_id)+"r:Y")
+    memo[(q_id,True)] = res
+    res = r.scard("q:"+str(q_id)+"r:N")
+    memo[(q_id,False)] = res
+  return memo[key]
 
-def getResponsesForQuestion(question, responses):
+def getResponsesForQuestion(question):
   def question_id(x):
-    return (lambda l: l[1] == x[0])
+    return x[0]
 
-  def question_affirmative(x):
-    return (lambda l: l[2]==1)
+  positive = get(question_id(question),True)
+  negative = get(question_id(question),False)
 
-  # Get all responses for this question
-  matching_questions = filter(question_id(question), responses)
-  # Get all positive responses for this question
-  positive = len(filter(question_affirmative, matching_questions))
-  negative = len(matching_questions) - positive
   return (positive,negative)
 
 
-def solve(scenarios, question, responses):
-  positive, negative = getResponsesForQuestion(question, responses)
+def solve(scenarios, question):
+  positive, negative = getResponsesForQuestion(question)
 
   for s in scenarios.keys():
     if matches(s,question):
@@ -109,11 +110,10 @@ def main():
   scenarios = generateScenarios()
   hit_scenarios = {}.fromkeys(scenarios, 0)
   questions = loadQuestions()
-  responses = loadResponses()
   for q in questions:
-    solve(hit_scenarios,q,responses)
-#  for h in hit_scenarios:
-#    print  str(hit_scenarios[h]) +" - "  + str(h)
+    solve(hit_scenarios,q)
+  for h in hit_scenarios:
+    print  str(hit_scenarios[h]) +" - "  + str(h)
 
 
 main()
