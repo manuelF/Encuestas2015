@@ -59,6 +59,15 @@ func distanceToHalf(f float64) float64 {
 	return math.Abs(0.5 - f)
 }
 
+func getQuestionStats(q_id int) (int, int) {
+	pos, err1 := c.Cmd("SCARD", fmt.Sprintf("q:%vr:Y", q_id)).Int64()
+	neg, err2 := c.Cmd("SCARD", fmt.Sprintf("q:%vr:N", q_id)).Int64()
+	if err1 != nil || err2 != nil {
+		log.Fatal(err1, err2)
+	}
+	return int(pos), int(neg)
+}
+
 func loadQuestions() {
 	// Parse the questions file
 	// Format: <qnumber> <qtype> <arg1> <arg2>
@@ -73,16 +82,17 @@ func loadQuestions() {
 			break
 		}
 		qparts := strings.Split(strings.TrimSpace(str), " ")
-		qid, _ := strconv.Atoi(qparts[0])
+		q_id, _ := strconv.Atoi(qparts[0])
 		qtype, _ := strconv.Atoi(qparts[1])
 		arg1, _ := strconv.Atoi(qparts[2])
 		arg2 := 0
 		if len(qparts) > 3 {
 			arg2, _ = strconv.Atoi(qparts[3])
 		}
-		tmp := Question{qid, qtype, arg1, arg2}
+		tmp := Question{q_id, qtype, arg1, arg2}
 		qs = append(qs, tmp)
-		questionStats = append(questionStats, QuestionStats{qid, 0, 0})
+		pos, neg := getQuestionStats(q_id)
+		questionStats = append(questionStats, QuestionStats{q_id, pos, neg})
 	}
 }
 
@@ -149,7 +159,7 @@ func getQuestion() Question {
 		return distanceToHalf(q1.Ratio()) < distanceToHalf(q2.Ratio())
 	}
 	//fmt.Println(questionStats)
-	if rand.Intn(2) == 0 {
+	if rand.Intn(2) == 3 {
 		By(tightestRatio).Sort(questionStats)
 		q := qidq[questionStats[0].Q_id]
 		return q
