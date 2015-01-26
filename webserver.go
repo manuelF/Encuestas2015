@@ -28,9 +28,9 @@ var (
 	qidqs         = map[int]*QuestionStats{}
 	qidq          = map[int]Question{}
 	c             = &redis.Client{}
-	formats       = []string{"%v sacara mas votos que %v?", "%v sacara mas del %v porciento de votos?",
-		"%v sacara menos del %v porciento	de los votos?", "Algun candidato sacara mas del %v porciento de los votos?",
-		"El ganador, le sacara al menos %v porciento al segundo?", "Habra al menos %v candidatos con mas del %v porciento cada uno?"}
+	formats       = []string{"¿%v sacará más votos que %v?", "¿%v sacará más del %v%%?",
+		"¿%v sacará menos del %v%%?", "¿Algún candidato sacará más del %v%%?",
+		"El ganador, ¿le sacará al menos %v%% al segundo?", "¿Habrá al menos %v candidatos con más del %v%% cada uno?"}
 )
 
 type Question struct {
