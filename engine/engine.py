@@ -111,14 +111,30 @@ def generateScenarios():
     return feasbile
 
 
+def votesPerCandidate(scenarios):
+    # Count how many votes does a scenario receive, if the candidate is the
+    # winner
+    candidates_votes = {}
+    for s in scenarios:
+        for index, candidate in enumerate(s):
+            if candidate == max(s):
+                candidates_votes[index + 1] =
+                candidates_votes.setdefault(index + 1, 0) + scenarios[s]
+    total_votes = float(
+        sum([candidates_votes[k] for k in candidates_votes])) / 100.
+    for c in candidates_votes:
+        print "Candidate " + str(c) + ": " + str(candidates_votes[c] / total_votes) + " votes"
+
+
 def main():
     scenarios = generateScenarios()
     hit_scenarios = {}.fromkeys(scenarios, 0)
     questions = loadQuestions()
     for q in questions:
         solve(hit_scenarios, q)
-    for h in hit_scenarios:
-        print str(hit_scenarios[h]) + " - " + str(h)
+    votesPerCandidate(hit_scenarios)
+#    for h in hit_scenarios:
+#        print str(hit_scenarios[h]) + " - " + str(h)
 
 
 if __name__ == '__main__':
