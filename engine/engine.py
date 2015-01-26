@@ -118,8 +118,8 @@ def votesPerCandidate(scenarios):
     for s in scenarios:
         for index, candidate in enumerate(s):
             if candidate == max(s):
-                candidates_votes[index + 1] =
-                candidates_votes.setdefault(index + 1, 0) + scenarios[s]
+                current = candidates_votes.setdefault(index + 1, 0)
+                candidates_votes[index + 1] = current + scenarios[s]
     total_votes = float(
         sum([candidates_votes[k] for k in candidates_votes])) / 100.
     for c in candidates_votes:
