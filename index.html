@@ -14,10 +14,10 @@
   var Q_id=0;
   var question_queue=[];
   var refresh = function() {
-    if(question_queue!=null && question_queue.length>0) {
-      data = question_queue.shift();
-      Q = data["Q"];
-      Q_id = data["Q_id"];
+    if(question_queue!==null && question_queue.length>0) {
+      var data = question_queue.shift();
+      Q = data.Q;
+      Q_id = data.Q_id;
       $(".buddy").first().css("display","block");
     }
   };
@@ -29,9 +29,9 @@
     '<p id="Qid">'+data.Q_id+' </p> '+
     '<img id="No" src="images/cross.png" height="50" width="50">No</img>' +
     '<img id="Si" src="images/tick.png" height="50" width="50">Si</img>' +
-    '</div></div>'
+    '</div></div>';
     return text;
-  }
+  };
 
   var submit = function(response,cb) {
     $.ajax( {
@@ -40,7 +40,7 @@
       cache:false});
     $(".buddy").first().remove();
     refresh();
-  }
+  };
 
   var addCard = function(data) {
     var texto = generateCard(data);
@@ -56,7 +56,7 @@
   };
 
   var getNext = function(data) {
-    if(data!=null) {
+    if(data!==null) {
       question_queue.push(data);
       addCard(data);
     }
