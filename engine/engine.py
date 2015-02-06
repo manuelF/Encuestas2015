@@ -89,7 +89,7 @@ def generateScenarios():
 
     fun = linspace
 
-    step = 0.5
+    step = 1
     a = set(fun(0, 60, step))  # macri
     b = set(fun(0, 60, step))  # massa
     c = set(fun(0, 60, step))  # scioli
@@ -133,8 +133,8 @@ def main():
     for q in questions:
         solve(hit_scenarios, q)
     votesPerCandidate(hit_scenarios)
-#    for h in hit_scenarios:
-#        print str(hit_scenarios[h]) + " - " + str(h)
+    for h in hit_scenarios:
+        print str(hit_scenarios[h]) + " - " + str(h)
 
 
 if __name__ == '__main__':

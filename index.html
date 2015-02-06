@@ -18,18 +18,20 @@
       var data = question_queue.shift();
       Q = data.Q;
       Q_id = data.Q_id;
-      $(".buddy").first().css("display","block");
+      $(".outer").first().css("display","block");
     }
   };
 
   var generateCard = function(data) {
     var text =
-    '<div class="buddy" ><div class=avatar style="display: block; ">' +
-    '<p id="Q">'+data.Q+'</p> ' +
-    '<p id="Qid">'+data.Q_id+' </p> '+
-    '<img id="No" src="images/cross.png" height="50" width="50">No</img>' +
-    '<img id="Si" src="images/tick.png" height="50" width="50">Si</img>' +
-    '</div></div>';
+    '<div class="outer" ><div class=inner style="display: block; ">' +
+        '<center> <p id="Q" class="question">'+data.Q+'</p> </center></div>' +
+    //'<p id="Qid">'+data.Q_id+' </p> '+
+    '<center> <div style="width: 50%; overflow: hidden;">' +
+    '<div style="width: 50px; float: left;"> <img id="No" src="images/cross.png" height="50" width="50" /> No</div>' +
+    '<div style="width: 50px; float: right;" > <img id="Si" src="images/tick.png" height="50" width="50" /> Si</div>' +
+    '</div></center>' +
+    '</div>';
     return text;
   };
 
@@ -38,7 +40,7 @@
       url:"respond/"+uuid+"/"+Q_id+"/"+response,
       success:cb,
       cache:false});
-    $(".buddy").first().remove();
+    $(".outer").first().remove();
     refresh();
   };
 
