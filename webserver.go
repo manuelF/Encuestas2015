@@ -21,14 +21,13 @@ import (
 )
 
 var (
-	addr = flag.Bool("addr", false, "find open address and print to final-port.txt")
-	//qs            = []Question{{"Va a A sacar mas votos que B?", 1}, {"Va a C superar el 10%?", 2}, {"Va a D superar a B y no a C?", 3}}
+	addr          = flag.Bool("addr", false, "find open address and print to final-port.txt")
 	qs            = []Question{}
 	questionStats = []QuestionStats{}
 	qidqs         = map[int]*QuestionStats{}
 	qidq          = map[int]Question{}
 	candidates    = map[int]string{
-		1: "Macri",
+		1: "Kristina",
 		2: "Scioli",
 		3: "Massa",
 	}
