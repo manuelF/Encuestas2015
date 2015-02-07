@@ -27,7 +27,7 @@ var (
 	qidqs         = map[int]*QuestionStats{}
 	qidq          = map[int]Question{}
 	candidates    = map[int]string{
-		1: "Kristina",
+		1: "Macri",
 		2: "Scioli",
 		3: "Massa",
 	}
