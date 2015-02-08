@@ -1,15 +1,26 @@
 #!/usr/bin/python2
 
 import redis
+import numpy as np
+import random
 
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+# S is quantity of points to distribute among all scenarios
+S = 100
+# F is fraction of points scenarios contribute to outcome pool
+F = .6
 
 
 def loadQuestions():
     f = open("questions.txt", "r")
     lines = [l.strip() for l in f.readlines()]
     f.close()
-    return [map(int, l.split()) for l in lines if l is not ""]
+    return [tuple(map(int, l.split())) for l in lines if l is not ""]
+
+
+def count(P, arr):
+    return len(filter(P, arr))
 
 
 def matches(scenario, question):
@@ -68,15 +79,56 @@ def getResponsesForQuestion(question):
 
     return (positive, negative)
 
+scenarios_q = {}
 
-def solve(scenarios, question):
-    positive, negative = getResponsesForQuestion(question)
 
-    for s in scenarios.keys():
-        if matches(s, question):
-            scenarios[s] += positive
-        else:
-            scenarios[s] += negative
+def getScenariosForQuestion(scenarios, question):
+    all_scenarios = set(scenarios)
+    positive_scenarios = set(filter((lambda s: matches(s, question)), scenarios))
+    negative_scenarios = (all_scenarios - (positive_scenarios))
+    scenarios_q[question] = (positive_scenarios, negative_scenarios)
+
+
+def initialProbabilites(scenarios):
+    N = float(len(scenarios))
+    assert (N > 0)
+    return {}.fromkeys(scenarios, S / N)
+
+
+
+def tick(probabilities_for_scenario, question, response):
+    pos_scenarios, neg_scenarios = scenarios_q[question]
+    points_lost = 0.0
+    winners = 0
+    assert(len(pos_scenarios)>0)
+    assert(len(neg_scenarios)>0)
+    if response:
+      points_lost = sum([probabilities_for_scenario[s] for s in neg_scenarios])
+      winners = len(pos_scenarios)
+    else:
+      points_lost = sum([probabilities_for_scenario[s] for s in pos_scenarios])
+      winners = len(neg_scenarios)
+    assert(winners>0)
+
+    for s in pos_scenarios:
+      current_probability = probabilities_for_scenario[s]
+      k = 0.
+      if response:
+        k = float(points_lost) / winners
+      else:
+        k = -current_probability
+      new_probability = current_probability + F * k
+      probabilities_for_scenario[s] = new_probability
+
+    for s in neg_scenarios:
+      current_probability = probabilities_for_scenario[s]
+      k = 0.
+      if response:
+        k = -current_probability
+      else:
+        k = float(points_lost) / winners
+      new_probability = current_probability + F * k
+      probabilities_for_scenario[s] = new_probability
 
 
 def generateScenarios():
@@ -128,13 +180,28 @@ def votesPerCandidate(scenarios):
 
 def main():
     scenarios = generateScenarios()
-    hit_scenarios = {}.fromkeys(scenarios, 0)
     questions = loadQuestions()
+    state = initialProbabilites(scenarios)
+    random.shuffle(questions)
+
     for q in questions:
-        solve(hit_scenarios, q)
-    votesPerCandidate(hit_scenarios)
-    for h in hit_scenarios:
-        print str(hit_scenarios[h]) + " - " + str(h)
+        getScenariosForQuestion(scenarios, q)
+        positive, negative = getResponsesForQuestion(q)
+        for i in xrange(positive):
+          tick(state, q, True)
+        for i in xrange(negative):
+          tick(state, q, False)
+    li = []
+    for s in state:
+      li.append((state[s],s))
+
+    orden = sorted(li, key=(lambda x: x[0]))
+    for i,k in enumerate(orden):
+      if i<10 or i > len(orden)-10:
+        print k
+
+    res = np.divide(np.sum([np.multiply(elem[0],elem[1]) for elem in orden], axis=0),S)
+    print res
 
 
 if __name__ == '__main__':

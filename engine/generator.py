@@ -31,7 +31,7 @@ def main():
     aLessThanX = [(3, a, x) for a in xrange(1, candidates + 1)
                   for x in linspace(minVotes, maxVotes, step)]
 
-    anyCandOverX = [(4, x) for x in linspace(minVotes, maxVotes, step)]
+    anyCandOverX = [(4, x) for x in linspace(35, maxVotes, step)]
 
     minDistance = 2
     maxDistance = 30
