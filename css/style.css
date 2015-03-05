@@ -1,9 +1,16 @@
 
+.ui-page{
+  background:url("../images/bgimage.jpg") no-repeat;
+  background-size:cover;
+  color:#ddd;
+  text-shadow:0 0 0 ;
+}
+
 #container {
   width: 500px;
   margin: auto !important;
   display: block;
-  height: 500px;
+  height: 300px;
   position: relative;
   list-style-type: none;
   -webkit-touch-callout: none;
@@ -13,18 +20,17 @@
   -ms-user-select: none;
   user-select: none;
 }
-.buddy {
+.outer {
   display: none;
-  background: #fff;
+  background: #ffd;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  color: #fff;
-  padding: 20px;
-  width: 360px;
-  height: 360px;
+  color: #222;
+  padding: 0px;
+  width: 560px;
+  height: 250px;
   margin: 0 auto;
   top: 50px;
-  left: 50px;
   position: absolute;
   cursor: hand;
 }
@@ -42,10 +48,11 @@
   margin-left: -400px;
   cursor: w-resize;
 }
-.avatar {
-  background: #222;
-  width: 340px;
-  height: 340px;
+.inner {
+  background: #ffd;
+  color: #222;
+  width: 540px;
+  height: 130px;
   display: block;
   margin-top: 10px;
   margin-left: 10px;
@@ -76,4 +83,8 @@
   top: 50px;
   left: 40px;
   text-shadow: none;
+}
+.question {
+  color: #222;
+  font-size: 1.7em;
 }

@@ -9,11 +9,11 @@ def solve():
   fun = linspace
 
   step = 1
-  a=set(fun(0,60,step)) #macri
-  b=set(fun(0,60,step)) #massa
-  c=set(fun(0,60,step)) #scioli
-  d=set(fun(0,60,step)) #binner
-  e=set(fun(0,20,step)) #otro
+  a=set(fun(0,50,step)) #macri
+  b=set(fun(0,50,step)) #massa
+  c=set(fun(0,50,step)) #scioli
+  d=set(fun(0,20,step)) #binner
+  e=set(fun(0,0,step)) #otro
   f=set(fun(0,0,step)) #otro
   suma = 100
   ways=0
@@ -37,8 +37,6 @@ def solve():
           if suma-_d<0:
             break
           suma-=_d
-          #(_a,_b,_c,_d,100-a-b-c-d)
-          #print (_a,_b,_c,_d,100-_a-_b-_c-_d)
           for _e in e:
             if suma-_e<0:
               break

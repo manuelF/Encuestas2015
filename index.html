@@ -14,33 +14,35 @@
   var Q_id=0;
   var question_queue=[];
   var refresh = function() {
-    if(question_queue!=null && question_queue.length>0) {
-      data = question_queue.shift();
-      Q = data["Q"];
-      Q_id = data["Q_id"];
-      $(".buddy").first().css("display","block");
+    if(question_queue!==null && question_queue.length>0) {
+      var data = question_queue.shift();
+      Q = data.Q;
+      Q_id = data.Q_id;
+      $(".outer").first().css("display","block");
     }
   };
 
   var generateCard = function(data) {
     var text =
-    '<div class="buddy" ><div class=avatar style="display: block; ">' +
-    '<p id="Q">'+data.Q+'</p> ' +
-    '<p id="Qid">'+data.Q_id+' </p> '+
-    '<img id="No" src="images/cross.png" height="50" width="50">No</img>' +
-    '<img id="Si" src="images/tick.png" height="50" width="50">Si</img>' +
-    '</div></div>'
+    '<div class="outer" ><div class=inner style="display: block; ">' +
+        '<center> <p id="Q" class="question">'+data.Q+'</p> </center></div>' +
+    //'<p id="Qid">'+data.Q_id+' </p> '+
+    '<center> <div style="width: 50%; overflow: hidden;">' +
+    '<div id="No" style="width: 50px; float: left;"> <img  src="images/cross.png" height="50" width="50" /> No</div>' +
+    '<div id="Si" style="width: 50px; float: right;" > <img  src="images/tick.png" height="50" width="50" /> Si</div>' +
+    '</div></center>' +
+    '</div>';
     return text;
-  }
+  };
 
   var submit = function(response,cb) {
     $.ajax( {
       url:"respond/"+uuid+"/"+Q_id+"/"+response,
       success:cb,
       cache:false});
-    $(".buddy").first().remove();
+    $(".outer").first().remove();
     refresh();
-  }
+  };
 
   var addCard = function(data) {
     var texto = generateCard(data);
@@ -56,7 +58,7 @@
   };
 
   var getNext = function(data) {
-    if(data!=null) {
+    if(data!==null) {
       question_queue.push(data);
       addCard(data);
     }

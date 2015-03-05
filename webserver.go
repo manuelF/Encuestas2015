@@ -21,14 +21,19 @@ import (
 )
 
 var (
-	addr = flag.Bool("addr", false, "find open address and print to final-port.txt")
-	//qs            = []Question{{"Va a A sacar mas votos que B?", 1}, {"Va a C superar el 10%?", 2}, {"Va a D superar a B y no a C?", 3}}
+	addr          = flag.Bool("addr", false, "find open address and print to final-port.txt")
 	qs            = []Question{}
 	questionStats = []QuestionStats{}
 	qidqs         = map[int]*QuestionStats{}
 	qidq          = map[int]Question{}
-	c             = &redis.Client{}
-	formats       = []string{"¿%v sacará más votos que %v?", "¿%v sacará más del %v%%?",
+	candidates    = map[int]string{
+		1: "Macri",
+		2: "Scioli",
+		3: "Massa",
+	}
+	stored_questions = map[int]string{}
+	c                = &redis.Client{}
+	formats          = []string{"¿%v sacará más votos que %v?", "¿%v sacará más del %v%%?",
 		"¿%v sacará menos del %v%%?", "¿Algún candidato sacará más del %v%%?",
 		"El ganador, ¿le sacará al menos %v%% al segundo?", "¿Habrá al menos %v candidatos con más del %v%% cada uno?"}
 )
@@ -146,12 +151,27 @@ func (r Question) String() (s string) {
 	return
 }
 
-func (r Question) PrettyPrint() string {
-	if r.qtype == 1 || r.qtype == 2 || r.qtype == 3 || r.qtype == 6 {
-		return fmt.Sprintf(formats[r.qtype-1], r.arg1, r.arg2)
-	} else {
-		return fmt.Sprintf(formats[r.qtype-1], r.arg1)
+func (r Question) PrettyPrint() (response string) {
+	if val, exists := stored_questions[r.id]; exists {
+		return val
 	}
+	switch r.qtype {
+	case 1, 2, 3:
+		arg2 := fmt.Sprintf("%v", r.arg2)
+		if r.qtype == 1 {
+			arg2 = candidates[r.arg2]
+		}
+
+		arg1 := candidates[r.arg1]
+		response = fmt.Sprintf(formats[r.qtype-1], arg1, arg2)
+
+	case 4, 5:
+		response = fmt.Sprintf(formats[r.qtype-1], r.arg1)
+	case 6:
+		response = fmt.Sprintf(formats[r.qtype-1], r.arg1, r.arg2)
+	}
+	stored_questions[r.id] = response
+	return response
 }
 
 func getQuestion() Question {
@@ -183,7 +203,7 @@ func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, re
 	// Add to the set : "q:<q.id>r:<response>" the userid
 	// Cardinality is what is going to be tested for models
 	go c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
-	go c.Cmd("SADD", fmt.Sprintf("u:%v", id), q)
+	go c.Cmd("SADD", fmt.Sprintf("u:%v", uuid), id)
 	if response {
 		qidqs[id].Positive++
 	} else {
