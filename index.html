@@ -12,6 +12,7 @@
   var uuid={{.UUID}};
   var Q="";
   var Q_id=0;
+  var submitted=0;
   var question_queue=[];
   var refresh = function() {
     if(question_queue!==null && question_queue.length>0) {
@@ -25,8 +26,9 @@
   var generateCard = function(data) {
     var text =
     '<div class="outer" ><div class=inner style="display: block; ">' +
-        '<center> <p id="Q" class="question">'+data.Q+'</p> </center></div>' +
-    //'<p id="Qid">'+data.Q_id+' </p> '+
+    '<center> <p id="Q" class="question">'+data.Q+'</p> '+
+    '<p id="submitted">Respondidas '+ submitted++ +' preguntas</p> '+
+    '</center></div>' +
     '<center> <div style="width: 50%; overflow: hidden;">' +
     '<div id="No" style="width: 50px; float: left;"> <img  src="images/cross.png" height="50" width="50" /> No</div>' +
     '<div id="Si" style="width: 50px; float: right;" > <img  src="images/tick.png" height="50" width="50" /> Si</div>' +
