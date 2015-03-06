@@ -150,7 +150,28 @@ func (r Question) String() (s string) {
 	s = string(b)
 	return
 }
-
+func (r Question) FullData() (s string) {
+	data := struct {
+		Q      string
+		Q_id   int
+		Q_Type int
+		Arg1   int
+		Arg2   int
+	}{
+		r.PrettyPrint(),
+		r.id,
+		r.qtype,
+		r.arg1,
+		r.arg2,
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		s = ""
+		return
+	}
+	s = string(b)
+	return
+}
 func (r Question) PrettyPrint() (response string) {
 	if val, exists := stored_questions[r.id]; exists {
 		return val
@@ -194,6 +215,12 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, q)
 }
 
+func getDebugHandler(w http.ResponseWriter, r *http.Request) {
+	q := getQuestion()
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, q.FullData())
+}
+
 func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, response bool) {
 	// Store response in REDIS
 	st := "N"
@@ -214,17 +241,25 @@ func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, re
 
 var templates = template.Must(template.ParseFiles("index.html"))
 
-var validGetPath = regexp.MustCompile("^/get/$")
-
-func makeGetHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+func generateGetHandler(reg *regexp.Regexp, fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := validGetPath.FindStringSubmatch(r.URL.Path)
+		m := reg.FindStringSubmatch(r.URL.Path)
 		if m == nil {
 			http.NotFound(w, r)
 			return
 		}
 		fn(w, r)
 	}
+}
+
+func makeGetHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	var validGetPath = regexp.MustCompile("^/get/$")
+	return generateGetHandler(validGetPath, fn)
+}
+
+func makeGetDebugHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	var validGetDebugPath = regexp.MustCompile("^/getdebug/$")
+	return generateGetHandler(validGetDebugPath, fn)
 }
 
 // Format of response is /respond/<user_id>/<question_number>/<Yes/No>
@@ -271,6 +306,7 @@ func InitializeMaps() {
 func main() {
 	flag.Parse()
 	http.HandleFunc("/get/", makeGetHandler(getHandler))
+	http.HandleFunc("/getdebug/", makeGetDebugHandler(getDebugHandler))
 	http.HandleFunc("/respond/", makeRespondHandler(respondHandler))
 	http.HandleFunc("/", indexHandler)
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./images/"))))
@@ -293,7 +329,7 @@ func main() {
 	c, err = redis.Dial("tcp", "localhost:6379")
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Printf("Connecting to Redis: %v", err))
 	}
 	InitializeMaps()
 	http.ListenAndServe(":8080", nil)
