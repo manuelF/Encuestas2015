@@ -42,7 +42,7 @@ def matches(scenario, question):
   # Type 4: Is there a cand >= X% ?
   if question[1] == 4:
     target = question[2]
-    return any(map((lambda x: x >= target), scenario))
+    return any(map((lambda x: x > target), scenario))
   # Type 5: Is the distance between 1st and 2nd at least X% ?
   if question[1] == 5:
     target = question[2]
