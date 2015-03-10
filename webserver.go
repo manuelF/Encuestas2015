@@ -232,11 +232,13 @@ func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, re
 	if _, valid := qidqs[id]; valid {
 		go c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
 		go c.Cmd("SADD", fmt.Sprintf("u:%v", uuid), id)
-		if response {
-			qidqs[id].Positive++
-		} else {
-			qidqs[id].Negative++
-		}
+		/*
+			if response {
+				qidqs[id].Positive++
+			} else {
+				qidqs[id].Negative++
+			}
+		*/
 	}
 	http.Redirect(w, r, "/get/", http.StatusFound)
 }
