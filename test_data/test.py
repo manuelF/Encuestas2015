@@ -58,9 +58,9 @@ def matches(scenario, question):
     assert(False)
 
 def main():
-    user_id = random.randint(1, 1000000)
     start_time = datetime.now()
     for i in xrange(repeats):
+        user_id = random.randint(1, 1000000)
         new_question = getQuestion()
         args = (new_question["Q_id"], new_question["Q_Type"], new_question["Arg1"], new_question["Arg2"])
         ans = matches (basic_scenario, args)
