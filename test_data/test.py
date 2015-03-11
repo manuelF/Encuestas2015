@@ -13,12 +13,14 @@ basic_scenario = eval(sys.argv[2])
 
 
 def getQuestion():
-    q = requests.get('http://162.220.15.210:8000/getdebug/')
-    return json.loads(q.text)
+    q = json.loads(requests.get('http://162.220.15.210:8000/getdebug/').text)
+    print q
+    return q
 
 def answerQuestion(user_id, question_id, answer):
     ans = 'Y' if answer else 'N'
     response = "http://162.220.15.210:8000/respond/{0}/{1}/{2}".format(user_id, question_id, ans)
+    print response
     r = requests.get(response)
 
 def matches(scenario, question):
