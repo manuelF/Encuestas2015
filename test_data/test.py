@@ -65,7 +65,7 @@ def main():
         args = (new_question["Q_id"], new_question["Q_Type"], new_question["Arg1"], new_question["Arg2"])
         ans = matches (basic_scenario, args)
         answerQuestion(user_id, new_question["Q_id"], ans)
-        print str(datetime.now()-start_time)
+        print i, str(datetime.now()-start_time)
         start_time = datetime.now()
 
 if __name__ == '__main__':
