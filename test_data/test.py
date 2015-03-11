@@ -1,18 +1,25 @@
 #!/bin/python
+# Usage:
+#    python test.py [# of responses] [evaluated scenario]
+
+from datetime import datetime
 import requests
+import random
 import json
+import sys
 
-basic_scenario = (45, 35, 20)
-
+repeats = eval(sys.argv[1])
+basic_scenario = eval(sys.argv[2])
 
 
 def getQuestion():
     q = requests.get('http://162.220.15.210:8000/getdebug/')
     return json.loads(q.text)
 
-
-
-
+def answerQuestion(user_id, question_id, answer):
+    ans = 'Y' if answer else 'N'
+    response = "http://162.220.15.210:8000/respond/{0}/{1}/{2}".format(user_id, question_id, ans)
+    r = requests.get(response)
 
 def matches(scenario, question):
     # Type 1: A<B ?
@@ -49,7 +56,15 @@ def matches(scenario, question):
     assert(False)
 
 def main():
-    asd = getQuestion()
+    user_id = random.randint(1, 1000000)
+    start_time = datetime.now()
+    for i in xrange(repeats):
+        new_question = getQuestion()
+        args = (new_question["Q_id"], new_question["Q_Type"], new_question["Arg1"], new_question["Arg2"])
+        ans = matches (basic_scenario, args)
+        answerQuestion(user_id, new_question["Q_id"], ans)
+        print str(datetime.now()-start_time)
+        start_time = datetime.now()
 
 if __name__ == '__main__':
     main()
