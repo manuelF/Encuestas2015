@@ -31,9 +31,9 @@ var (
 		2: "Scioli",
 		3: "Massa",
 	}
-	stored_questions = map[int]string{}
-	c                = &redis.Client{}
-	formats          = []string{"¿%v sacará más votos que %v?", "¿%v sacará más del %v%%?",
+	storedQuestions = map[int]string{}
+	c               = &redis.Client{}
+	formats         = []string{"¿%v sacará más votos que %v?", "¿%v sacará más del %v%%?",
 		"¿%v sacará menos del %v%%?", "¿Algún candidato sacará más del %v%%?",
 		"El ganador, ¿le sacará al menos %v%% al segundo?", "¿Habrá al menos %v candidatos con más del %v%% cada uno?"}
 )
@@ -173,7 +173,7 @@ func (r Question) FullData() (s string) {
 	return
 }
 func (r Question) PrettyPrint() (response string) {
-	if val, exists := stored_questions[r.id]; exists {
+	if val, exists := storedQuestions[r.id]; exists {
 		return val
 	}
 	switch r.qtype {
@@ -191,7 +191,7 @@ func (r Question) PrettyPrint() (response string) {
 	case 6:
 		response = fmt.Sprintf(formats[r.qtype-1], r.arg1, r.arg2)
 	}
-	stored_questions[r.id] = response
+	storedQuestions[r.id] = response
 	return response
 }
 
@@ -204,9 +204,9 @@ func getQuestion() Question {
 		By(tightestRatio).Sort(questionStats)
 		q := qidq[questionStats[0].Q_id]
 		return q
-	} else {
-		return qidq[rand.Intn(len(qs))+1]
 	}
+	return qidq[rand.Intn(len(qs))+1]
+
 }
 
 func getHandler(w http.ResponseWriter, r *http.Request) {
@@ -229,12 +229,16 @@ func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, re
 	}
 	// Add to the set : "q:<q.id>r:<response>" the userid
 	// Cardinality is what is going to be tested for models
-	go c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
-	go c.Cmd("SADD", fmt.Sprintf("u:%v", uuid), id)
-	if response {
-		qidqs[id].Positive++
-	} else {
-		qidqs[id].Negative++
+	if _, valid := qidqs[id]; valid {
+		go c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
+		go c.Cmd("SADD", fmt.Sprintf("u:%v", uuid), id)
+		/*
+			if response {
+				qidqs[id].Positive++
+			} else {
+				qidqs[id].Negative++
+			}
+		*/
 	}
 	http.Redirect(w, r, "/get/", http.StatusFound)
 }
