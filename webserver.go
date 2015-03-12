@@ -230,8 +230,8 @@ func respondHandler(w http.ResponseWriter, r *http.Request, uuid int, id int, re
 	// Add to the set : "q:<q.id>r:<response>" the userid
 	// Cardinality is what is going to be tested for models
 	if _, valid := qidqs[id]; valid {
-		go c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
-		go c.Cmd("SADD", fmt.Sprintf("u:%v", uuid), id)
+		c.Cmd("SADD", fmt.Sprintf("q:%vr:%v", id, st), uuid)
+		c.Cmd("SADD", fmt.Sprintf("u:%v", uuid), id)
 		/*
 			if response {
 				qidqs[id].Positive++
