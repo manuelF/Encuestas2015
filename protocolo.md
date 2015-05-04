@@ -57,3 +57,19 @@ Para modelar este efecto, supondremos que los escenarios mentales 's' bajo la hi
 [14] pry(main)> 20.times { print shuffle [90,10]; print ", " }
 [88, 12], [87, 13], [90, 10], [95, 5], [94, 6], [88, 12], [93, 7], [93, 7], [93, 7], [90, 10], [82, 18], [93, 7], [90, 10], [90, 10], [88, 12], [92, 8], [91, 9], [85, 15], [95, 5], [84, 16], => 20
 ```
+
+===
+
+Hasta ahora, el sistema de actualizacion de las probabilidades de la suite es el siguiente:
+Para el dato {Q: q, R: r} y la suite S={for i in 1..n Si: {H => hi, P => pi}}
+
+1. Se computa el valor que toma la pregunta "q"  bajo cada escenario S[i]
+> ri=R(Q | S[i])
+2. Se divide la suite de resultados en dos subconjuntos mutuamente excluyentes y colectivamente exhaustivos: aquellos cuyo ri = r, y aquellos en que ri != r.
+3. La probabilidad de las hipotesis en que 'ri' no coincide con el 'r' emitido por el agente, disminuye en un fraccion 'm' de la que original.
+4. Esa misma "masa" de probabilidad sustraida, se reparte equitativamente entre las hipotesis cuyo ri = r.
+
+La unica diferencia que este formato agregaria, seria en el primer paso:
+1. Se computa el valor que toma la pregunta "q", **bajo un escenario mental generado a partir de cada S[i]**.
+> ri=R(Q | s(S[i]))
+...donde s(x) es un escenario mental generado a partir de la hipotesis 'x'.
